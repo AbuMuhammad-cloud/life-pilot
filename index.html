@@ -38,6 +38,8 @@
 
             --shadow: 0 10px 25px rgba(0,0,0,0.1);
 
+            /* کیٹیگری رنگ */
+
             --cat-personal: #9b59b6;
 
             --cat-work: #34495e;
@@ -96,18 +98,6 @@
 
 
 
-        .input-wrapper {
-
-            position: relative;
-
-            display: flex;
-
-            align-items: center;
-
-        }
-
-
-
         input[type="text"], input[type="datetime-local"], input[type="time"], select { 
 
             width: 100%; padding: 12px 15px; margin-bottom: 20px; border-radius: 12px; border: 1.5px solid #dcdde1; 
@@ -115,56 +105,6 @@
             font-size: 17px; font-family: inherit; background-color: #fdfdfd; transition: 0.3s;
 
             box-sizing: border-box;
-
-        }
-
-
-
-        #voiceBtn {
-
-            position: absolute;
-
-            left: 10px;
-
-            top: 10px;
-
-            background: none;
-
-            border: none;
-
-            font-size: 22px;
-
-            cursor: pointer;
-
-            z-index: 10;
-
-            padding: 5px;
-
-            transition: 0.3s;
-
-            line-height: 1;
-
-        }
-
-
-
-        .recording {
-
-            color: var(--urgent);
-
-            animation: pulse 1.5s infinite;
-
-        }
-
-
-
-        @keyframes pulse {
-
-            0% { transform: scale(1); opacity: 1; }
-
-            50% { transform: scale(1.2); opacity: 0.7; }
-
-            100% { transform: scale(1); opacity: 1; }
 
         }
 
@@ -362,13 +302,7 @@
 
     <label>ٹاسک :</label>
 
-    <div class="input-wrapper">
-
-        <input type="text" id="taskTitle" placeholder="یہاں لکھیں یا مائیک دبائیں...">
-
-        <button id="voiceBtn" title="بول کر لکھیں">🎙️</button>
-
-    </div>
+    <input type="text" id="taskTitle" placeholder="یہاں لکھیں...">
 
     
 
@@ -500,6 +434,8 @@
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
+    // اگر آپ ڈیٹا بیس یا دیگر سروسز استعمال کرنا چاہتے ہیں تو انہیں یہاں امپورٹ کریں
+
     
 
     const firebaseConfig = {
@@ -528,189 +464,11 @@
 
 
 
+    // باقی تمام جاوا اسکرپٹ لاجک
+
     let selectedDays = [];
 
 
-
-    // --- ذہین وائس کمانڈ لاجک (اپڈیٹڈ) ---
-
-    const voiceBtn = document.getElementById('voiceBtn');
-
-    const taskInput = document.getElementById('taskTitle');
-
-    const taskDtInput = document.getElementById('taskDateTime');
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-
-
-    if (SpeechRecognition) {
-
-        const recognition = new SpeechRecognition();
-
-        recognition.lang = 'ur-PK'; 
-
-        recognition.continuous = true; 
-
-        recognition.interimResults = true; 
-
-
-
-        let isRecognizing = false;
-
-
-
-        voiceBtn.onclick = () => {
-
-            if (isRecognizing) {
-
-                recognition.stop();
-
-            } else {
-
-                taskInput.value = ""; 
-
-                recognition.start();
-
-            }
-
-        };
-
-
-
-        recognition.onstart = () => {
-
-            isRecognizing = true;
-
-            voiceBtn.classList.add('recording');
-
-            voiceBtn.innerText = "🛑";
-
-            taskInput.placeholder = "میں سن رہا ہوں، بولیں...";
-
-        };
-
-
-
-        recognition.onresult = (event) => {
-
-            let interimTranscript = '';
-
-            let finalTranscript = '';
-
-
-
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-
-                if (event.results[i].isFinal) {
-
-                    finalTranscript += event.results[i][0].transcript;
-
-                } else {
-
-                    interimTranscript += event.results[i][0].transcript;
-
-                }
-
-            }
-
-
-
-            let text = finalTranscript || interimTranscript;
-
-            taskInput.value = text;
-
-
-
-            if (finalTranscript.includes("محفوظ کرو") || finalTranscript.includes("ایڈ کر دو") || finalTranscript.includes("سیو کرو")) {
-
-                processSmartTask(finalTranscript);
-
-                recognition.stop();
-
-            }
-
-        };
-
-
-
-        function processSmartTask(speechText) {
-
-            let taskDate = new Date();
-
-            
-
-            if (speechText.includes("کل")) {
-
-                taskDate.setDate(taskDate.getDate() + 1);
-
-            } else if (speechText.includes("پرسوں")) {
-
-                taskDate.setDate(taskDate.getDate() + 2);
-
-            }
-
-
-
-            taskDate.setHours(12, 0, 0, 0);
-
-            
-
-            const cleanTask = speechText.replace(/محفوظ کرو|ایڈ کر دو|سیو کرو|کل|پرسوں/g, "").trim();
-
-            taskInput.value = cleanTask;
-
-            
-
-            const formattedDate = taskDate.toISOString().slice(0, 16);
-
-            taskDtInput.value = formattedDate;
-
-
-
-            setTimeout(() => {
-
-                window.addTask();
-
-            }, 500);
-
-        }
-
-
-
-        recognition.onend = () => {
-
-            isRecognizing = false;
-
-            voiceBtn.classList.remove('recording');
-
-            voiceBtn.innerText = "🎙️";
-
-            taskInput.placeholder = "یہاں لکھیں یا مائیک دبائیں...";
-
-        };
-
-
-
-        recognition.onerror = () => {
-
-            isRecognizing = false;
-
-            voiceBtn.classList.remove('recording');
-
-            voiceBtn.innerText = "🎙️";
-
-        };
-
-    } else {
-
-        voiceBtn.style.display = "none";
-
-    }
-
-
-
-    // --- باقی فنکشنز (بغیر کسی تبدیلی کے) ---
 
     window.toggleDay = function(day, element) {
 
@@ -796,15 +554,11 @@
 
             taskData = tasks.find(t => t.id == editId);
 
-            if(taskData) {
+            taskData.title = title;
 
-                taskData.title = title;
+            taskData.priority = priority;
 
-                taskData.priority = priority;
-
-                taskData.category = category;
-
-            }
+            taskData.category = category;
 
         } else {
 
@@ -1044,8 +798,6 @@
 
         const task = tasks.find(t => t.id === id);
 
-        if(!task) return;
-
         document.getElementById('taskTitle').value = task.title;
 
         document.getElementById('taskPriority').value = task.priority;
@@ -1088,6 +840,8 @@
 
 
 
+    // Event Listeners
+
     document.getElementById('mainSubmitBtn').onclick = addTask;
 
     document.getElementById('taskPriority').onchange = toggleDaysSelector;
@@ -1099,8 +853,6 @@
     document.getElementById('filterPriority').onchange = displayTasks;
 
     document.getElementById('modalActionBtn').onclick = () => document.getElementById('dailyModal').style.display = 'none';
-
-    
 
     document.getElementById('clearHistoryBtn').onclick = function() {
 
@@ -1134,6 +886,8 @@
 
 
 
+    // Initialization
+
     displayTasks();
 
     setTimeout(() => {
@@ -1159,3 +913,4 @@
 </body>
 
 </html>
+

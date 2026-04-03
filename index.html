@@ -184,7 +184,25 @@
         <input type="text" id="taskTitle" placeholder="یہاں لکھیں یا مائیک دبائیں...">
         <button id="voiceBtn" title="بول کر لکھیں">🎙️</button>
     </div>
-    
+    <button onclick="openAIPage()" class="btn-add" style="background: #8e44ad; margin-top: 10px;">🤖 AI اسسٹنٹ سے بات کریں</button>
+
+<div id="aiAssistantPage" class="modal" style="display:none; background: white;">
+    <div style="padding: 20px; height: 100%; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <button onclick="closeAIPage()" style="font-size: 24px; background: none; border: none; cursor: pointer;">✕</button>
+            <h2 style="margin: 0; color: #8e44ad;">لائف پائلٹ اسسٹنٹ</h2>
+        </div>
+        
+        <div id="chatBox" style="flex-grow: 1; overflow-y: auto; padding: 15px; border: 1px solid #eee; border-radius: 15px; margin: 20px 0; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px;">
+            <div style="background: #eee; padding: 10px; border-radius: 10px; align-self: start;">اسلام علیکم! میں آپ کا AI اسسٹنٹ ہوں۔ میں آپ کے ٹاسک مینیج کرنے میں مدد کر سکتا ہوں۔</div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="aiQuery" placeholder="ٹاسک ایڈ کروائیں یا مشورہ مانگیں..." style="margin-bottom: 0;">
+            <button onclick="processAIRequest()" style="background: #8e44ad; color: white; border: none; border-radius: 10px; padding: 0 20px;">بھیجیں</button>
+        </div>
+    </div>
+</div>
     <div style="display: flex; gap: 10px;">
         <div style="flex: 1;">
             <label>اہمیت:</label>
@@ -249,7 +267,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    
+import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
     const firebaseConfig = {
       apiKey: "AIzaSyC9LITlR-8LNMFBRxPcGh__pqmnQgJkC-g",
       authDomain: "me-and-my-f7f60.firebaseapp.com",
@@ -259,7 +278,95 @@
       messagingSenderId: "846734579594",
       appId: "1:846734579594:web:b57688dd8f0f645fcf9a73"
     };
+// Gemini API کو امپورٹ کریں
 
+import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+// --- جیمینائی سیٹ اپ شروع ---
+const API_KEY = "AIzaSyD5Q_z3YCsY3ZjdrWklwTFoyQKjVNWjT70";
+const genAI = new GoogleGenerativeAI(API_KEY);
+
+window.openAIPage = () => document.getElementById('aiAssistantPage').style.display = 'block';
+window.closeAIPage = () => document.getElementById('aiAssistantPage').style.display = 'none';
+
+window.processAIRequest = async () => {
+    const queryInput = document.getElementById('aiQuery');
+    const chatBox = document.getElementById('chatBox');
+    const userText = queryInput.value;
+    if (!userText) return;
+
+    chatBox.innerHTML += `<div style="background: #4a69bd; color: white; padding: 10px; border-radius: 10px; align-self: end; max-width: 80%;">${userText}</div>`;
+    queryInput.value = "";
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const prompt = `You are a task manager. If the user wants to add a task, reply in JSON format like this: {"task": "title", "category": "work/personal/home/health"}. If it's just a conversation, reply in Urdu. User says: ${userText}`;
+        
+        const result = await model.generateContent(prompt);
+        const responseText = await result.response.text();
+
+        if (responseText.includes("{")) {
+            const taskData = JSON.parse(responseText.match(/\{.*\}/)[0]);
+            autoAddTask(taskData.task, taskData.category);
+            chatBox.innerHTML += `<div style="background: #2ecc71; color: white; padding: 10px; border-radius: 10px; align-self: start; max-width: 80%;">ٹھیک ہے! میں نے "${taskData.task}" کو آپ کے ٹاسک میں شامل کر دیا ہے۔</div>`;
+        } else {
+            chatBox.innerHTML += `<div style="background: #eee; padding: 10px; border-radius: 10px; align-self: start; max-width: 80%;">${responseText}</div>`;
+        }
+    } catch (e) {
+        chatBox.innerHTML += `<div style="color: red; align-self: start;">سسٹم میں خرابی ہے، دوبارہ کوشش کریں۔</div>`;
+    }
+    chatBox.scrollTop = chatBox.scrollHeight;
+};
+
+function autoAddTask(title, category) {
+    let tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
+    const newTask = {
+        id: Date.now(),
+        title: title,
+        priority: 'Normal',
+        category: category || 'personal',
+        status: 'Pending',
+        dateTime: new Date().toISOString().slice(0, 16)
+    };
+    tasks.push(newTask);
+    localStorage.setItem('myTasks', JSON.stringify(tasks));
+    if (window.displayTasks) window.displayTasks(); 
+}
+// --- جیمینائی سیٹ اپ ختم ---
+
+const API_KEY = "AIzaSyD5Q_z3YCsY3ZjdrWklwTFoyQKjVNWjT70";
+
+const genAI = new GoogleGenerativeAI(API_KEY);
+
+
+
+// AI سے بات کرنے کا فنکشن
+
+async function askAI(prompt) {
+
+    try {
+
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const result = await model.generateContent(prompt);
+
+        const response = await result.response;
+
+        return response.text();
+
+    } catch (error) {
+
+        console.error("AI Error:", error);
+
+        return "معذرت، ابھی میں جواب نہیں دے پا رہا۔";
+
+    }
+
+}
+
+
+
+}
     const app = initializeApp(firebaseConfig);
     console.log("Firebase Connected!");
 

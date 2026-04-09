@@ -1,916 +1,473 @@
 ﻿<!DOCTYPE html>
-
 <html lang="ur" dir="rtl">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Life Pilot</title>
+    
+    <meta name="theme-color" content="#4a69bd">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Life Pilot">
+    
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
+
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Life Pilot","short_name":"Life Pilot","start_url":"/","display":"standalone","background_color":"#f0f3f7","theme_color":"#4a69bd","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/1063/1063376.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
 
     <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
     
-
     <style>
-
         :root {
-
             --primary: #4a69bd;
-
             --secondary: #1e3799;
-
             --background: #f0f3f7;
-
             --text-color: #2c3e50;
-
             --urgent: #e74c3c;
-
             --important: #f39c12;
-
             --normal: #f1c40f;
-
             --low: #3498db;
-
             --success: #2ecc71;
-
             --shadow: 0 10px 25px rgba(0,0,0,0.1);
-
-            /* کیٹیگری رنگ */
-
             --cat-personal: #9b59b6;
-
             --cat-work: #34495e;
-
             --cat-home: #e67e22;
-
             --cat-health: #2ecc71;
-
         }
-
-
 
         body { 
-
             font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', 'Urdu Typesetting', serif; 
-
             background-color: var(--background); 
-
             padding: 15px; 
-
             text-align: right; 
-
             margin: 0;
-
             color: var(--text-color);
-
             line-height: 2.2;
-
         }
-
-
 
         .container { 
-
             max-width: 500px; 
-
             margin: 30px auto; 
-
             background: white; 
-
             padding: 35px 25px; 
-
             border-radius: 30px; 
-
             box-shadow: var(--shadow);
-
         }
-
-
 
         h2 { text-align: center; color: var(--primary); font-size: 32px; margin-bottom: 30px; font-weight: normal; }
-
-
-
         label { display: block; margin-bottom: 10px; font-weight: 600; font-size: 18px; color: var(--secondary); }
 
-
-
         input[type="text"], input[type="datetime-local"], input[type="time"], select { 
-
             width: 100%; padding: 12px 15px; margin-bottom: 20px; border-radius: 12px; border: 1.5px solid #dcdde1; 
-
             font-size: 17px; font-family: inherit; background-color: #fdfdfd; transition: 0.3s;
-
             box-sizing: border-box;
-
         }
-
-
 
         input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 8px rgba(74, 105, 189, 0.2); }
 
-
-
-        .search-container {
-
-            display: flex; gap: 10px; margin-bottom: 20px;
-
-        }
-
+        .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
         .search-container input, .search-container select { margin-bottom: 0; }
 
-
-
         .days-selector { display: none; background: #f9f9f9; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px dashed var(--primary); }
-
         .days-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
-
-        .day-chip { 
-
-            padding: 5px 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 14px; cursor: pointer; background: white; transition: 0.3s;
-
-        }
-
+        .day-chip { padding: 5px 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 14px; cursor: pointer; background: white; transition: 0.3s; }
         .day-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-
-
-        .select-all-btn {
-
-            background: #eee; border: 1px solid #ccc; padding: 5px 15px; border-radius: 8px; 
-
-            font-family: inherit; cursor: pointer; font-size: 14px; margin-bottom: 10px; transition: 0.3s;
-
-        }
-
+        .select-all-btn { background: #eee; border: 1px solid #ccc; padding: 5px 15px; border-radius: 8px; font-family: inherit; cursor: pointer; font-size: 14px; margin-bottom: 10px; transition: 0.3s; }
         .select-all-btn:hover { background: #ddd; }
 
-
-
         .btn-add { 
-
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-
             color: white; cursor: pointer; border: none; padding: 15px; border-radius: 15px;
-
             font-size: 20px; width: 100%; font-family: inherit; box-shadow: 0 5px 15px rgba(30, 55, 153, 0.2);
-
         }
-
-
-
-        .btn-add:hover { transform: translateY(-2px); opacity: 0.95; }
-
-
 
         hr { border: 0; border-top: 1px solid #eee; margin: 30px 0; }
-
-
-
         h3 { font-size: 22px; border-right: 5px solid var(--primary); padding-right: 12px; margin-bottom: 20px; }
 
-
-
         .task-item { 
-
             background: #fff; border-right: 10px solid #ccc; padding: 20px; margin-bottom: 15px; 
-
             display: flex; justify-content: space-between; align-items: center; 
-
             box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 18px; animation: slideUp 0.4s ease;
-
         }
-
         
-
         .cat-personal { border-right-color: var(--cat-personal) !important; }
-
         .cat-work { border-right-color: var(--cat-work) !important; }
-
         .cat-home { border-right-color: var(--cat-home) !important; }
-
         .cat-health { border-right-color: var(--cat-health) !important; }
-
         
-
         .completed { text-decoration: line-through; opacity: 0.5; filter: grayscale(1); }
-
-
-
         .task-info strong { font-size: 20px; color: #333; display: block; }
-
         .task-info small { color: #666; font-size: 14px; font-family: 'Poppins', sans-serif; display: block; }
-
         .category-tag { font-size: 12px; background: #eee; padding: 2px 8px; border-radius: 5px; margin-top: 5px; display: inline-block; }
 
-
-
-        .btn-complete { 
-
-            width: 45px; height: 45px; border-radius: 50%; border: 2px solid #ddd;
-
-            background: white; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: 0.3s;
-
-        }
-
+        .btn-complete { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #ddd; background: white; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
         .btn-complete:hover { background: var(--success); border-color: var(--success); color: white; }
-
         .btn-complete:before { content: "✓"; }
 
+        .history-btn { background: transparent; color: var(--urgent); border: 2px solid var(--urgent); padding: 10px; border-radius: 12px; width: 100%; font-family: inherit; margin-top: 25px; cursor: pointer; font-size: 18px; }
 
-
-        .history-btn { 
-
-            background: transparent; color: var(--urgent); border: 2px solid var(--urgent); padding: 10px;
-
-            border-radius: 12px; width: 100%; font-family: inherit; margin-top: 25px; cursor: pointer; font-size: 18px;
-
-        }
-
-        .history-btn:hover { background: var(--urgent); color: white; }
-
-
-
-        .modal {
-
-            display: none; position: fixed; z-index: 100;
-
-            left: 0; top: 0; width: 100%; height: 100%;
-
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-
-        }
-
-        .modal-content {
-
-            background: white; margin: 20% auto; padding: 30px;
-
-            border-radius: 25px; width: 85%; max-width: 400px; text-align: center;
-
-        }
-
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 20% auto; padding: 30px; border-radius: 25px; width: 85%; max-width: 400px; text-align: center; }
         .modal-btn { background: var(--primary); color: white; border: none; padding: 10px 30px; border-radius: 10px; font-family: inherit; font-size: 18px; margin: 10px 5px; cursor: pointer; }
-
         .modal-btn.edit-btn { background: var(--important); }
 
-
-
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
     </style>
-
 </head>
-
 <body>
-
-
 
 <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto" loop></audio>
 
-
-
 <div id="dailyModal" class="modal">
-
     <div class="modal-content">
-
         <h3 id="modalTitle" style="border:none;">السلام علیکم!</h3>
-
         <p id="modalMsg">آج آپ کا کیا ارادہ ہے؟ کوئی نیا ٹاسک ایڈ کرنا چاہیں گے؟</p>
-
         <div id="modalButtons">
-
             <button id="modalActionBtn" class="modal-btn">جی ضرور</button>
-
         </div>
-
     </div>
-
 </div>
-
-
 
 <div class="container">
-
     <h2>لائف پائلٹ</h2>
-
-    
-
     <input type="hidden" id="editTaskId"> 
-
     <label>ٹاسک :</label>
-
     <input type="text" id="taskTitle" placeholder="یہاں لکھیں...">
-
     
-
     <div style="display: flex; gap: 10px;">
-
         <div style="flex: 1;">
-
             <label>اہمیت:</label>
-
             <select id="taskPriority">
-
                 <option value="Normal" selected>نارمل </option>
-
                 <option value="Important">ضروری </option>
-
                 <option value="Low">روٹین وائز</option>
-
             </select>
-
         </div>
-
         <div style="flex: 1;">
-
             <label>کیٹیگری:</label>
-
             <select id="taskCategory">
-
                 <option value="personal">ذاتی</option>
-
                 <option value="work">کام</option>
-
                 <option value="home">گھر</option>
-
                 <option value="health">صحت</option>
-
             </select>
-
         </div>
-
     </div>
-
-
 
     <div id="dateTimeContainer">
-
         <label>تاریخ اور وقت:</label>
-
         <input type="datetime-local" id="taskDateTime">
-
     </div>
-
-
 
     <div id="daysSelector" class="days-selector">
-
         <label>وقت منتخب کریں:</label>
-
         <input type="time" id="routineTime">
-
         <label>ریمائنڈر کے دن:</label>
-
         <button type="button" class="select-all-btn" id="selectAllBtn">تمام دن</button>
-
         <div class="days-grid" id="daysGrid">
-
             <div class="day-chip" data-day="0">اتوار</div>
-
             <div class="day-chip" data-day="1">پیر</div>
-
             <div class="day-chip" data-day="2">منگل</div>
-
             <div class="day-chip" data-day="3">بدھ</div>
-
             <div class="day-chip" data-day="4">جمعرات</div>
-
             <div class="day-chip" data-day="5">جمعہ</div>
-
             <div class="day-chip" data-day="6">ہفتہ</div>
-
         </div>
-
     </div>
-
     
-
     <button id="mainSubmitBtn" class="btn-add">ٹاسک محفوظ کریں</button>
-
-
-
     <hr>
-
     
-
     <h3>تلاش اور فلٹر</h3>
-
     <div class="search-container">
-
         <input type="text" id="searchInput" placeholder="نام سے تلاش کریں...">
-
         <select id="filterPriority">
-
             <option value="all">تمام اہمیت</option>
-
             <option value="Important">ضروری</option>
-
             <option value="Normal">نارمل</option>
-
             <option value="Low">روٹین</option>
-
         </select>
-
     </div>
-
-
 
     <h3>آج کے کام</h3>
-
     <div id="taskList"></div>
-
-    
-
     <button class="history-btn" id="clearHistoryBtn">مکمل شدہ ہسٹری صاف کریں</button>
-
 </div>
 
-
-
 <script type="module">
+    // --- Service Worker Registration for PWA ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        const sw = 'data:text/javascript;base64,' + btoa('self.addEventListener("fetch", (event) => {});');
+        navigator.serviceWorker.register(sw).catch(err => console.log('SW failed', err));
+      });
+    }
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-
-    // اگر آپ ڈیٹا بیس یا دیگر سروسز استعمال کرنا چاہتے ہیں تو انہیں یہاں امپورٹ کریں
-
     
-
     const firebaseConfig = {
-
       apiKey: "AIzaSyC9LITlR-8LNMFBRxPcGh__pqmnQgJkC-g",
-
       authDomain: "me-and-my-f7f60.firebaseapp.com",
-
       databaseURL: "https://me-and-my-f7f60-default-rtdb.asia-southeast1.firebasedatabase.app",
-
       projectId: "me-and-my-f7f60",
-
       storageBucket: "me-and-my-f7f60.firebasestorage.app",
-
       messagingSenderId: "846734579594",
-
       appId: "1:846734579594:web:b57688dd8f0f645fcf9a73"
-
     };
-
-
 
     const app = initializeApp(firebaseConfig);
-
-    console.log("Firebase Connected!");
-
-
-
-    // باقی تمام جاوا اسکرپٹ لاجک
-
     let selectedDays = [];
 
-
-
     window.toggleDay = function(day, element) {
-
         if (selectedDays.includes(day)) {
-
             selectedDays = selectedDays.filter(d => d !== day);
-
             element.classList.remove('active');
-
         } else {
-
             selectedDays.push(day);
-
             element.classList.add('active');
-
         }
-
     };
-
-
 
     window.selectAllDays = function() {
-
         selectedDays = [0,1,2,3,4,5,6];
-
         document.querySelectorAll('.day-chip').forEach(chip => chip.classList.add('active'));
-
     };
-
-
 
     window.toggleDaysSelector = function() {
-
         const priority = document.getElementById('taskPriority').value;
-
         const daysBox = document.getElementById('daysSelector');
-
         const dtBox = document.getElementById('dateTimeContainer');
-
-        
-
         if (priority === 'Low') {
-
             daysBox.style.display = 'block';
-
             dtBox.style.display = 'none';
-
         } else {
-
             daysBox.style.display = 'none';
-
             dtBox.style.display = 'block';
-
         }
-
     };
-
-
 
     window.addTask = function() {
-
         const title = document.getElementById('taskTitle').value;
-
         const priority = document.getElementById('taskPriority').value;
-
         const category = document.getElementById('taskCategory').value;
-
         const editId = document.getElementById('editTaskId').value;
-
-        
-
         if (!title) return alert("ٹاسک درج کریں!");
 
-
-
         let tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
-
         let taskData;
 
-
-
         if (editId) {
-
             taskData = tasks.find(t => t.id == editId);
-
             taskData.title = title;
-
             taskData.priority = priority;
-
             taskData.category = category;
-
+            taskData.notified = false;
         } else {
-
-            taskData = { id: Date.now(), title, priority, category, status: 'Pending' };
-
+            taskData = { id: Date.now(), title, priority, category, status: 'Pending', notified: false };
         }
-
-
 
         if (priority === 'Low') {
-
             const time = document.getElementById('routineTime').value;
-
             if (!time || selectedDays.length === 0) return alert("وقت اور کم از کم ایک دن منتخب کریں!");
-
             taskData.time = time;
-
             taskData.repeatDays = [...selectedDays];
-
             taskData.isRoutine = true;
-
             taskData.dateTime = null;
-
         } else {
-
             const dt = document.getElementById('taskDateTime').value;
-
             if (!dt) return alert("تاریخ اور وقت منتخب کریں!");
-
             taskData.dateTime = dt;
-
             taskData.isRoutine = false;
-
             taskData.time = null;
-
             taskData.repeatDays = [];
-
         }
-
-
 
         if (!editId) tasks.push(taskData);
-
         localStorage.setItem('myTasks', JSON.stringify(tasks));
-
         resetForm();
-
         displayTasks();
-
     };
-
-
 
     window.displayTasks = function() {
-
         const taskList = document.getElementById('taskList');
-
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
         const priorityFilter = document.getElementById('filterPriority').value;
-
-        
-
         taskList.innerHTML = '';
-
         let tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
-
-
 
         tasks.forEach(task => {
-
             const matchesSearch = task.title.toLowerCase().includes(searchTerm);
-
             const matchesFilter = priorityFilter === 'all' || task.priority === priorityFilter;
 
-
-
             if (matchesSearch && matchesFilter) {
-
                 const div = document.createElement('div');
-
                 div.className = `task-item priority-${task.priority} cat-${task.category} ${task.status === 'Completed' ? 'completed' : ''}`;
-
                 
-
                 let infoText = "";
-
                 if (task.isRoutine) {
-
                     const daysUrdu = ["اتوار", "پیر", "منگل", "بدھ", "جمعرات", "جمعہ", "ہفتہ"];
-
                     const selectedNames = task.repeatDays.map(d => daysUrdu[d]).join('، ');
-
                     infoText = `روٹین: ${task.time} (${selectedNames})`;
-
                 } else {
-
                     const dt = new Date(task.dateTime);
-
                     infoText = isNaN(dt) ? "" : dt.toLocaleString('ur-PK', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
-
                 }
 
-
-
                 const catNames = { personal: "ذاتی", work: "کام", home: "گھر", health: "صحت" };
-
-
-
                 div.innerHTML = `
-
                     <div class="task-info">
-
                         <strong>${task.title}</strong>
-
                         <small>${infoText}</small>
-
                         <span class="category-tag">${catNames[task.category] || "ذاتی"}</span>
-
                     </div>
-
                     ${task.status === 'Pending' ? `<button class="btn-complete" onclick="confirmComplete(${task.id})"></button>` : '✅'}
-
                 `;
-
                 taskList.appendChild(div);
-
             }
-
         });
-
     };
 
+    window.checkAlarms = function() {
+        const now = new Date();
+        const currentDay = now.getDay();
+        const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        const currentFullDate = now.toISOString().slice(0, 16);
+        let tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
+        let updated = false;
 
+        tasks.forEach(task => {
+            if (task.status === 'Pending' && !task.notified) {
+                let shouldRing = false;
+                if (task.isRoutine) {
+                    if (task.repeatDays.includes(currentDay) && task.time === currentTime) shouldRing = true;
+                } else {
+                    if (task.dateTime === currentFullDate) shouldRing = true;
+                }
+                if (shouldRing) {
+                    triggerAlarm(task);
+                    task.notified = true; 
+                    updated = true;
+                }
+            }
+        });
+        if (updated) localStorage.setItem('myTasks', JSON.stringify(tasks));
+    };
+
+    window.triggerAlarm = function(task) {
+        const sound = document.getElementById('alarmSound');
+        sound.play().catch(e => console.log("User click required"));
+        showModal("الارم!", "وقت ہو گیا ہے: " + task.title, "الارم بند کریں", () => {
+            sound.pause();
+            sound.currentTime = 0;
+            document.getElementById('dailyModal').style.display = 'none';
+        });
+    };
+
+    setInterval(window.checkAlarms, 30000);
 
     window.confirmComplete = function(id) {
-
         showModal("ٹاسک ایکشن", "کیا آپ اس ٹاسک کو مکمل کر چکے ہیں؟", "ہاں، مکمل کر چکا ہوں", () => markComplete(id), true, id);
-
     };
-
-
 
     window.markComplete = function(id) {
-
         let tasks = JSON.parse(localStorage.getItem('myTasks'));
-
         tasks = tasks.map(t => t.id === id ? {...t, status: 'Completed'} : t);
-
         localStorage.setItem('myTasks', JSON.stringify(tasks));
-
         document.getElementById('dailyModal').style.display = 'none';
-
         displayTasks();
-
     };
-
-
 
     window.resetForm = function() {
-
         document.getElementById('taskTitle').value = '';
-
         document.getElementById('editTaskId').value = '';
-
         document.getElementById('taskPriority').value = 'Normal';
-
         document.getElementById('taskDateTime').value = '';
-
         document.getElementById('routineTime').value = '';
-
         document.getElementById('mainSubmitBtn').innerText = 'ٹاسک محفوظ کریں';
-
         selectedDays = [];
-
         document.querySelectorAll('.day-chip').forEach(c => c.classList.remove('active'));
-
         toggleDaysSelector();
-
     };
-
-
 
     window.showModal = function(title, msg, btnText, action, showEdit = false, taskId = null) {
-
         document.getElementById('modalTitle').innerText = title;
-
         document.getElementById('modalMsg').innerText = msg;
-
         const btnContainer = document.getElementById('modalButtons');
-
         btnContainer.innerHTML = ''; 
-
-        
-
         const mainBtn = document.createElement('button');
-
         mainBtn.className = 'modal-btn';
-
         mainBtn.innerText = btnText;
-
         mainBtn.onclick = action;
-
         btnContainer.appendChild(mainBtn);
-
-
-
         if (showEdit) {
-
             const editBtn = document.createElement('button');
-
             editBtn.className = 'modal-btn edit-btn';
-
             editBtn.innerText = "تبدیلی کریں (ایڈٹ)";
-
             editBtn.onclick = () => {
-
                 document.getElementById('dailyModal').style.display = 'none';
-
                 editTask(taskId);
-
             };
-
             btnContainer.appendChild(editBtn);
-
         }
-
         document.getElementById('dailyModal').style.display = 'block';
-
     };
-
-
 
     window.editTask = function(id) {
-
         let tasks = JSON.parse(localStorage.getItem('myTasks'));
-
         const task = tasks.find(t => t.id === id);
-
         document.getElementById('taskTitle').value = task.title;
-
         document.getElementById('taskPriority').value = task.priority;
-
         document.getElementById('taskCategory').value = task.category || 'personal';
-
         document.getElementById('editTaskId').value = task.id;
-
         document.getElementById('mainSubmitBtn').innerText = 'تبدیلی محفوظ کریں';
-
-
-
         if (task.isRoutine) {
-
             document.getElementById('routineTime').value = task.time;
-
             selectedDays = [...task.repeatDays];
-
             document.querySelectorAll('.day-chip').forEach(chip => {
-
                 const d = parseInt(chip.getAttribute('data-day'));
-
                 if (selectedDays.includes(d)) chip.classList.add('active');
-
                 else chip.classList.remove('active');
-
             });
-
         } else {
-
             document.getElementById('taskDateTime').value = task.dateTime;
-
         }
-
         toggleDaysSelector();
-
         window.scrollTo(0, 0);
-
     };
-
-
-
-    // Event Listeners
 
     document.getElementById('mainSubmitBtn').onclick = addTask;
-
     document.getElementById('taskPriority').onchange = toggleDaysSelector;
-
     document.getElementById('selectAllBtn').onclick = selectAllDays;
-
     document.getElementById('searchInput').onkeyup = displayTasks;
-
     document.getElementById('filterPriority').onchange = displayTasks;
-
     document.getElementById('modalActionBtn').onclick = () => document.getElementById('dailyModal').style.display = 'none';
-
     document.getElementById('clearHistoryBtn').onclick = function() {
-
         if(confirm("کیا آپ مکمل شدہ ہسٹری ختم کرنا چاہتے ہیں؟")) {
-
             let tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
-
             tasks = tasks.filter(task => task.status === 'Pending');
-
             localStorage.setItem('myTasks', JSON.stringify(tasks));
-
             displayTasks();
-
         }
-
     };
-
-
-
     document.querySelectorAll('.day-chip').forEach(chip => {
-
         chip.addEventListener('click', function() {
-
             const day = parseInt(this.getAttribute('data-day'));
-
             toggleDay(day, this);
-
         });
-
     });
 
-
-
-    // Initialization
-
     displayTasks();
-
     setTimeout(() => {
-
         const today = new Date().toISOString().split('T')[0];
-
         let tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
-
         const hasTaskToday = tasks.some(task => !task.isRoutine && task.dateTime && task.dateTime.startsWith(today));
-
         if (!hasTaskToday) {
-
             showModal("السلام علیکم!", "آج آپ کا کیا ارادہ ہے؟ کوئی نیا ٹاسک ایڈ کرنا چاہیں گے؟", "جی ضرور", () => document.getElementById('dailyModal').style.display = 'none');
-
         }
-
     }, 1500);
-
 </script>
 
-
-
 </body>
-
 </html>
-
